@@ -18,7 +18,7 @@ backend install is under ~50MB.
 - **LLM:** OpenRouter (`openai/gpt-4o-mini`, or any model you swap in)
 - **PDF parsing:** PyMuPDF
 
-## Setup (no Docker)
+## Setup 
 
 ### 1. Get an OpenRouter API key
 
