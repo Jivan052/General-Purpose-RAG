@@ -1,4 +1,4 @@
-# RAG Lab
+# General Purpose RAG Lab
 
 A lightweight local RAG playground for learning and experimenting with retrieval-augmented generation. Upload a PDF, TXT, or MD file, ask questions, and inspect the exact chunks that were retrieved and the timings for both retrieval and LLM generation.
 
