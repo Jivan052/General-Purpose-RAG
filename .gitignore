@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+pythonenv*
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.pdm-build/
+
+# Virtual environments and environment secrets
+.env
+.env.*
+!.env.example
+
+# FastAPI / app runtime artifacts
+backend/qdrant_data/
+backend/.cache/
+backend/.coverage
+backend/htmlcov/
+.backend
+
+# Logs and debug files
+*.log
+logs/
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Build / packaging outputs
+build/
+dist/
+*.egg-info/
+.eggs/
+site/
+
+# Node / frontend tooling (if used later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Optional local database/data files
+*.sqlite3
+*.db
+*.db-journal
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Coverage / test reports
+.coverage
+coverage.xml
+htmlcov/

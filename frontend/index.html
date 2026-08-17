@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAG Lab</title>
+  <style>
+    :root {
+      --bg: #f5f5f3;
+      --panel: #ffffff;
+      --panel-soft: #f0f0ee;
+      --border: #d9d9d5;
+      --text: #111111;
+      --muted: #666666;
+      --black: #000000;
+      --white: #ffffff;
+      --shadow: rgba(0,0,0,0.06);
+      --success: #1a1a1a;
+      --warning: #555555;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      padding: 32px 18px 60px;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 0 4px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--black);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 0.7rem;
+      background: var(--white);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .status.online .status-dot { background: #111; }
+    .status.offline .status-dot { background: #777; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 22px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 12px 28px var(--shadow);
+      padding: 20px;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .mini-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .helper {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 0.92rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--black);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+    }
+
+    input[type="file"] {
+      width: 100%;
+      border: 1px dashed var(--border);
+      background: var(--panel-soft);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 0.9rem;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--black);
+      background: var(--black);
+      color: var(--white);
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    button.secondary {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .log-box,
+    .meta-box,
+    .result-card,
+    .chunk-card {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .log-box {
+      min-height: 42px;
+      font-size: 0.83rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+    }
+
+    .meta-box {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .metric-label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 1.15rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .result-card {
+      min-height: 170px;
+    }
+
+    .progress-box {
+      margin-top: 14px;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .progress-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .progress-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .step-pill {
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .step-pill.active {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+      animation: pulse 0.8s ease-in-out infinite alternate;
+    }
+
+    .step-pill.done {
+      background: #171717;
+      color: var(--white);
+      border-color: #171717;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.75; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .answer-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .answer-text {
+      font-size: 0.98rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      color: var(--text);
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .chunk-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chunk-card {
+      padding: 14px;
+    }
+
+    .chunk-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .score-pill {
+      border: 1px solid var(--border);
+      background: var(--white);
+      padding: 4px 7px;
+      border-radius: 999px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .score-bar {
+      height: 6px;
+      background: #e3e3e0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .score-bar span {
+      display: block;
+      height: 100%;
+      background: var(--black);
+      border-radius: inherit;
+    }
+
+    .chunk-text {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .field-grid,
+      .meta-box {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">R</div>
+        <span>RAG Lab</span>
+      </div>
+      <div id="status" class="status">
+        <span class="status-dot"></span>
+        <span>checking backend…</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="stack">
+        <section class="panel">
+          <div class="section-label">Settings</div>
+
+          <div class="field-grid">
+            <div class="field full">
+              <label for="llmBaseUrl">LLM Base URL</label>
+              <input id="llmBaseUrl" type="text" value="https://openrouter.ai/api/v1" />
+            </div>
+
+            <div class="field full">
+              <label for="llmApiKey">LLM API Key</label>
+              <input id="llmApiKey" type="password" placeholder="Enter OpenRouter key" />
+            </div>
+
+            <div class="field full">
+              <label for="llmModel">LLM Model</label>
+              <input id="llmModel" type="text" value="openai/gpt-oss-20b:free" />
+            </div>
+
+            <div class="field full">
+              <label for="embeddingModel">Embedding Model</label>
+              <input id="embeddingModel" type="text" value="openai/text-embedding-3-small" />
+            </div>
+
+            <div class="field">
+              <label for="embeddingDim">Embedding Dim</label>
+              <input id="embeddingDim" type="number" value="1536" min="1" />
+            </div>
+
+            <div class="field">
+              <label for="topK">Top K Results</label>
+              <input id="topK" type="number" value="5" min="1" max="20" />
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button id="saveConfigBtn" class="secondary" type="button">Save config</button>
+            <button id="loadConfigBtn" type="button">Load defaults</button>
+          </div>
+
+          <div id="configLog" class="log-box" style="margin-top: 12px;">No settings saved yet.</div>
+        </section>
+
+        <section class="panel">
+          <div class="section-label">Knowledge Base</div>
+          <div class="field full">
+            <label for="fileInput">Upload file</label>
+            <input type="file" id="fileInput" accept=".pdf,.txt,.md" />
+          </div>
+
+          <div class="button-row">
+            <button id="uploadBtn" type="button">Ingest file</button>
+          </div>
+
+          <div id="ingestLog" class="log-box" style="margin-top: 12px;">No file ingested yet.</div>
+        </section>
+      </aside>
+
+      <main class="stack">
+        <section class="panel">
+          <div class="section-label">Ask a question</div>
+          <textarea id="questionInput" placeholder="Paste your question here..."></textarea>
+          <div class="button-row" style="margin-top: 14px;">
+            <button id="askBtn" type="button">Run RAG</button>
+          </div>
+          <div class="progress-box">
+            <div class="progress-label">RAG pipeline</div>
+            <div id="ragProgress" class="progress-steps">
+              <span class="step-pill">Query</span>
+              <span class="step-pill">Embedding</span>
+              <span class="step-pill">Retrieval</span>
+              <span class="step-pill">LLM</span>
+              <span class="step-pill">Answer</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="label-row">
+            <div class="section-label" style="margin: 0;">Performance</div>
+          </div>
+          <div class="meta-box">
+            <div class="metric">
+              <span class="metric-label">Retrieval</span>
+              <span class="metric-value" id="retrievalTime">—</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">LLM</span>
+              <span class="metric-value" id="llmTime">—</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Total</span>
+              <span class="metric-value" id="totalTime">—</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-label">Answer</div>
+          <div id="answerBox" class="result-card">
+            <div class="empty">No result yet.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-label">Retrieved context</div>
+          <div id="chunksBox" class="chunk-list">
+            <div class="empty">Retrieved chunks will appear here.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+    const SESSION_KEY = "raglab_session_config";
+    const defaultConfig = {
+      llmBaseUrl: "https://openrouter.ai/api/v1",
+      llmModel: "openai/gpt-oss-20b:free",
+      embeddingModel: "openai/text-embedding-3-small",
+      embeddingDim: 1536,
+      topK: 5,
+      llmApiKey: ""
+    };
+
+    const statusEl = document.getElementById("status");
+    const configLog = document.getElementById("configLog");
+    const ingestLog = document.getElementById("ingestLog");
+    const answerBox = document.getElementById("answerBox");
+    const chunksBox = document.getElementById("chunksBox");
+    const ragProgressSteps = Array.from(document.querySelectorAll(".step-pill"));
+
+    const fields = {
+      llmBaseUrl: document.getElementById("llmBaseUrl"),
+      llmApiKey: document.getElementById("llmApiKey"),
+      llmModel: document.getElementById("llmModel"),
+      embeddingModel: document.getElementById("embeddingModel"),
+      embeddingDim: document.getElementById("embeddingDim"),
+      topK: document.getElementById("topK")
+    };
+
+    async function checkHealth() {
+      try {
+        const res = await fetch(`${API_BASE}/health`);
+        if (!res.ok) throw new Error();
+        statusEl.className = "status online";
+        statusEl.innerHTML = '<span class="status-dot"></span><span>backend online</span>';
+      } catch {
+        statusEl.className = "status offline";
+        statusEl.innerHTML = '<span class="status-dot"></span><span>backend offline</span>';
+      }
+    }
+
+    function setDefaultFormValues() {
+      Object.entries(defaultConfig).forEach(([key, value]) => {
+        const el = fields[key] || null;
+        if (el) el.value = value;
+      });
+    }
+
+    function applyConfigValues(config) {
+      const safeConfig = { ...defaultConfig, ...config };
+      fields.llmBaseUrl.value = safeConfig.llmBaseUrl || defaultConfig.llmBaseUrl;
+      fields.llmModel.value = safeConfig.llmModel || defaultConfig.llmModel;
+      fields.embeddingModel.value = safeConfig.embeddingModel || defaultConfig.embeddingModel;
+      fields.embeddingDim.value = safeConfig.embeddingDim || defaultConfig.embeddingDim;
+      fields.topK.value = safeConfig.topK || defaultConfig.topK;
+      fields.llmApiKey.value = safeConfig.llmApiKey || "";
+    }
+
+    function readSessionConfig() {
+      try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveSessionConfig() {
+      try {
+        const config = {
+          llmBaseUrl: fields.llmBaseUrl.value.trim(),
+          llmModel: fields.llmModel.value.trim(),
+          embeddingModel: fields.embeddingModel.value.trim(),
+          embeddingDim: Number(fields.embeddingDim.value) || defaultConfig.embeddingDim,
+          topK: Number(fields.topK.value) || defaultConfig.topK,
+          llmApiKey: fields.llmApiKey.value.trim()
+        };
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(config));
+      } catch {
+        // ignore storage issues in restricted contexts
+      }
+    }
+
+    async function loadConfig() {
+      const sessionConfig = readSessionConfig();
+      if (sessionConfig) {
+        applyConfigValues(sessionConfig);
+        configLog.textContent = "Session config restored.";
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/config`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to load config");
+
+        applyConfigValues({
+          llmBaseUrl: data.llm_base_url || defaultConfig.llmBaseUrl,
+          llmModel: data.llm_model || defaultConfig.llmModel,
+          embeddingModel: data.embedding_model || defaultConfig.embeddingModel,
+          embeddingDim: data.embedding_dim || defaultConfig.embeddingDim,
+          topK: data.top_k || defaultConfig.topK,
+          llmApiKey: ""
+        });
+
+        configLog.textContent = "Configuration loaded successfully.";
+      } catch (err) {
+        setDefaultFormValues();
+        configLog.textContent = `Load failed: ${err.message}`;
+      }
+    }
+
+    async function saveConfig() {
+      const payload = {
+        llm_base_url: fields.llmBaseUrl.value.trim(),
+        llm_api_key: fields.llmApiKey.value.trim(),
+        llm_model: fields.llmModel.value.trim(),
+        embedding_model: fields.embeddingModel.value.trim(),
+        embedding_dim: Number(fields.embeddingDim.value),
+        top_k: Number(fields.topK.value)
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/config`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Configuration update failed");
+
+        saveSessionConfig();
+        configLog.textContent = `Saved. LLM model: ${data.config.llm_model}`;
+      } catch (err) {
+        configLog.textContent = `Save failed: ${err.message}`;
+      }
+    }
+
+    Object.values(fields).forEach((field) => {
+      field.addEventListener("input", saveSessionConfig);
+      field.addEventListener("change", saveSessionConfig);
+    });
+
+    document.getElementById("saveConfigBtn").addEventListener("click", saveConfig);
+    document.getElementById("loadConfigBtn").addEventListener("click", () => {
+      setDefaultFormValues();
+      sessionStorage.removeItem(SESSION_KEY);
+      configLog.textContent = "Default values restored.";
+    });
+
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      const file = document.getElementById("fileInput").files[0];
+      if (!file) {
+        ingestLog.textContent = "Please select a file first.";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        ingestLog.textContent = "Uploading and ingesting file…";
+        document.getElementById("uploadBtn").disabled = true;
+
+        const res = await fetch(`${API_BASE}/ingest`, { method: "POST", body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Ingest failed");
+
+        ingestLog.textContent = `Ingested ${data.filename} with ${data.chunks_created} chunks.`;
+      } catch (err) {
+        ingestLog.textContent = `Error: ${err.message}`;
+      } finally {
+        document.getElementById("uploadBtn").disabled = false;
+      }
+    });
+
+    function updateProgress(stepIndex) {
+      ragProgressSteps.forEach((step, index) => {
+        step.classList.remove("active", "done");
+        if (index < stepIndex) step.classList.add("done");
+        if (index === stepIndex) step.classList.add("active");
+      });
+    }
+
+    function resetProgress() {
+      ragProgressSteps.forEach((step) => {
+        step.classList.remove("active", "done");
+      });
+    }
+
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    document.getElementById("askBtn").addEventListener("click", async () => {
+      const question = document.getElementById("questionInput").value.trim();
+      if (!question) {
+        answerBox.innerHTML = '<div class="empty">Please enter a question.</div>';
+        return;
+      }
+
+      let retrievalMs = 0;
+      let llmMs = 0;
+
+      answerBox.innerHTML = '<div class="empty">Processing RAG pipeline…</div>';
+      chunksBox.innerHTML = '<div class="empty">Running query pipeline…</div>';
+      resetProgress();
+
+      try {
+        updateProgress(0);
+        await wait(300);
+
+        updateProgress(1);
+        await wait(300);
+
+        updateProgress(2);
+        const res = await fetch(`${API_BASE}/query`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question, top_k: Number(fields.topK.value) })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Query failed");
+
+        updateProgress(3);
+        retrievalMs = Number(data.retrieval_ms || 0);
+        llmMs = Number(data.llm_response_ms || 0);
+        const totalMs = retrievalMs + llmMs;
+
+        document.getElementById("retrievalTime").textContent = formatMs(retrievalMs);
+        document.getElementById("llmTime").textContent = formatMs(llmMs);
+        document.getElementById("totalTime").textContent = formatMs(totalMs);
+
+        await wait(350);
+        updateProgress(4);
+        answerBox.innerHTML = `<div class="answer-title">Answer</div><div class="answer-text">${escapeHtml(data.answer || "No answer returned.")}</div>`;
+        renderChunks(data.retrieved_chunks || []);
+      } catch (err) {
+        resetProgress();
+        document.getElementById("retrievalTime").textContent = '—';
+        document.getElementById("llmTime").textContent = '—';
+        document.getElementById("totalTime").textContent = '—';
+        answerBox.innerHTML = `<div class="empty">Error: ${escapeHtml(err.message)}</div>`;
+        chunksBox.innerHTML = "";
+      }
+    });
+
+    function renderChunks(chunks) {
+      if (!chunks || chunks.length === 0) {
+        chunksBox.innerHTML = '<div class="empty">No chunks were retrieved.</div>';
+        return;
+      }
+
+      chunksBox.innerHTML = chunks.map(chunk => {
+        const width = Math.max(0, Math.min(100, (chunk.score || 0) * 100));
+        return `
+          <div class="chunk-card">
+            <div class="chunk-top">
+              <span>#${chunk.chunk_id ?? "n/a"} · ${escapeHtml(chunk.source || "source")}</span>
+              <span class="score-pill">${Number(chunk.score || 0).toFixed(4)}</span>
+            </div>
+            <div class="score-bar"><span style="width: ${width}%"></span></div>
+            <div class="chunk-text">${escapeHtml(chunk.text || "")}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function formatMs(ms) {
+      if (!Number.isFinite(ms) || ms < 0) return "—";
+      return `${ms.toFixed(0)} ms`;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = String(str ?? "");
+      return div.innerHTML;
+    }
+
+    checkHealth();
+    setDefaultFormValues();
+    loadConfig();
+  </script>
+</body>
+</html>
