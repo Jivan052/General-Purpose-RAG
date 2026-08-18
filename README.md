@@ -1,7 +1,7 @@
 # General Purpose RAG Lab
 
 A lightweight local RAG playground for learning and experimenting with retrieval-augmented generation. Upload a PDF, TXT, or MD file, ask questions, and inspect the exact chunks that were retrieved and the timings for both retrieval and LLM generation.
-
+<img width="1032" height="796" alt="Screenshot 2026-08-18 at 5 43 18 PM" src="https://github.com/user-attachments/assets/baf63430-58c1-4b97-bf4e-5a1e17120d65" />
 This project uses:
 
 - FastAPI for the backend API
