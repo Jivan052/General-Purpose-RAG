@@ -261,6 +261,101 @@
       letter-spacing: 0.03em;
     }
 
+    /* ---------- Info icon + popover ---------- */
+    .label-with-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+    }
+
+    .info-btn {
+      appearance: none;
+      border: 1.5px solid var(--border);
+      background: var(--yellow);
+      color: var(--ink);
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      padding: 0;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: none;
+      flex-shrink: 0;
+    }
+    .info-btn:hover { transform: none; box-shadow: 1px 1px 0 var(--border); }
+    .info-btn:active { transform: none; box-shadow: none; }
+
+    .info-popover {
+      display: none;
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      z-index: 20;
+      width: 260px;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 14px 15px;
+    }
+
+    .info-popover.open { display: block; }
+
+    .info-popover::before {
+      content: "";
+      position: absolute;
+      top: -8px;
+      left: 14px;
+      width: 14px;
+      height: 14px;
+      background: var(--panel);
+      border-left: 2px solid var(--border);
+      border-top: 2px solid var(--border);
+      transform: rotate(45deg);
+    }
+
+    .info-popover-title {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .info-popover ol {
+      margin: 0 0 10px;
+      padding-left: 18px;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+
+    .info-popover ol li { margin-bottom: 4px; }
+
+    .info-popover-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--ink);
+      background: var(--blue-soft);
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 12px;
+      text-decoration: none;
+    }
+    .info-popover-link:hover { background: var(--blue); }
+
     input[type="text"],
     input[type="password"],
     input[type="number"],
@@ -518,7 +613,20 @@
             </div>
 
             <div class="field full">
-              <label for="llmApiKey">LLM API Key</label>
+              <div class="label-with-info">
+                <label for="llmApiKey">LLM API Key</label>
+                <button type="button" class="info-btn" id="apiKeyInfoBtn" aria-label="How to get an OpenRouter API key" aria-expanded="false">i</button>
+                <div class="info-popover" id="apiKeyInfoPopover">
+                  <p class="info-popover-title">✦ Get an OpenRouter key</p>
+                  <ol>
+                    <li>Create a free account on OpenRouter.</li>
+                    <li>Open your account settings and go to the "Keys" section.</li>
+                    <li>Click "Create key", name it, and copy it.</li>
+                    <li>Paste it into the field here — it's stored only for this session.</li>
+                  </ol>
+                  <a class="info-popover-link" href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer">Open openrouter.ai ↗</a>
+                </div>
+              </div>
               <input id="llmApiKey" type="password" placeholder="Enter OpenRouter key" />
             </div>
 
@@ -662,6 +770,29 @@
     document.addEventListener('DOMContentLoaded', () => {
       initTheme();
       document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+      const infoBtn = document.getElementById('apiKeyInfoBtn');
+      const infoPopover = document.getElementById('apiKeyInfoPopover');
+
+      infoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = infoPopover.classList.toggle('open');
+        infoBtn.setAttribute('aria-expanded', String(isOpen));
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!infoPopover.contains(e.target) && e.target !== infoBtn) {
+          infoPopover.classList.remove('open');
+          infoBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          infoPopover.classList.remove('open');
+          infoBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
     });
 
     const defaultConfig = {
