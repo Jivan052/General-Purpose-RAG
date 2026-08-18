@@ -34,6 +34,10 @@ class RuntimeSettingsPayload(BaseModel):
     top_k: Optional[int] = None
 
 
+@app.get("/")
+async def root():
+    return {"Greeting": "Hello BUDDY ON GENERAL PURPOSE RAG!"}
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}

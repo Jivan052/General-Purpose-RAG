@@ -4,19 +4,40 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RAG Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f5f5f3;
+      --cream: #fbf6ec;
       --panel: #ffffff;
-      --panel-soft: #f0f0ee;
-      --border: #d9d9d5;
-      --text: #111111;
-      --muted: #666666;
-      --black: #000000;
+      --panel-soft: #f6f1e6;
+      --ink: #17160f;
+      --muted: #7a7566;
+      --border: #17160f;
+      --yellow: #ffd447;
+      --yellow-soft: #fff1c2;
+      --pink: #ffc2e2;
+      --pink-soft: #ffe3f1;
+      --blue: #aeddff;
+      --blue-soft: #e3f3ff;
       --white: #ffffff;
-      --shadow: rgba(0,0,0,0.06);
-      --success: #1a1a1a;
-      --warning: #555555;
+      --shadow: 3px 3px 0 var(--border);
+      --shadow-sm: 2px 2px 0 var(--border);
+      --radius: 20px;
+    }
+
+    html.dark-mode {
+      --cream: #17160f;
+      --panel: #211f16;
+      --panel-soft: #2a2818;
+      --ink: #f6f1e3;
+      --muted: #a49d87;
+      --border: #f6f1e3;
+      --yellow-soft: #4a3f14;
+      --pink-soft: #442a37;
+      --blue-soft: #1e3243;
+      --white: #211f16;
     }
 
     * { box-sizing: border-box; }
@@ -24,121 +45,205 @@
     html, body {
       margin: 0;
       min-height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: var(--cream);
+      background-image: radial-gradient(circle, rgba(23,22,15,0.16) 1.4px, transparent 1.4px);
+      background-size: 22px 22px;
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    body {
-      padding: 32px 18px 60px;
+    html.dark-mode {
+      background-image: radial-gradient(circle, rgba(246,241,227,0.14) 1.4px, transparent 1.4px);
     }
 
-    .wrap {
-      max-width: 1100px;
-      margin: 0 auto;
+    body { padding: 26px 20px 70px; }
+
+    .wrap { max-width: 1180px; margin: 0 auto; }
+
+    h1, h2, .display {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.01em;
     }
 
+    /* ---------- Topbar (pill nav, like reference) ---------- */
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      padding: 0 4px 20px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 24px;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 12px 10px 10px;
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      font-size: 0.9rem;
-      text-transform: uppercase;
+      gap: 10px;
     }
 
     .brand-mark {
-      width: 28px;
-      height: 28px;
-      border: 2px solid var(--black);
-      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
       display: grid;
       place-items: center;
-      font-size: 0.7rem;
-      background: var(--white);
+      background: var(--yellow);
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      flex-shrink: 0;
     }
+
+    .brand-name {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .brand-tag {
+      background: var(--yellow);
+      color: var(--ink);
+      border: 2px solid var(--border);
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-left: 2px;
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .theme-toggle {
+      appearance: none;
+      border: 2px solid var(--border);
+      background: var(--white);
+      color: var(--ink);
+      border-radius: 999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      transition: transform 0.15s ease;
+    }
+    .theme-toggle:hover { transform: translateY(-2px) rotate(-6deg); }
+    .theme-toggle:active { transform: translateY(0) rotate(0); }
 
     .status {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       font-size: 0.8rem;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      background: var(--panel);
-      padding: 7px 10px;
+      font-weight: 600;
+      color: var(--ink);
+      border: 2px solid var(--border);
+      background: var(--panel-soft);
+      padding: 9px 14px;
       border-radius: 999px;
+      white-space: nowrap;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+    .status.online { background: var(--blue-soft); }
+    .status.online .status-dot { background: #1a8f4c; box-shadow: 0 0 0 3px rgba(26,143,76,0.18); }
+    .status.offline { background: var(--pink-soft); }
+    .status.offline .status-dot { background: #c23b3b; }
+
+    /* ---------- Hero label ---------- */
+    .hero-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 26px;
+      flex-wrap: wrap;
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--muted);
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
-    .status.online .status-dot { background: #111; }
-    .status.offline .status-dot { background: #777; }
+    h1.page-title {
+      font-size: 2rem;
+      margin: 4px 0 6px;
+      line-height: 1.15;
+    }
 
+    .mark {
+      background: var(--yellow);
+      padding: 1px 10px;
+      border-radius: 8px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+
+    .page-sub {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 46ch;
+      margin: 0;
+    }
+
+    /* ---------- Layout ---------- */
     .layout {
       display: grid;
-      grid-template-columns: 420px 1fr;
+      grid-template-columns: 400px 1fr;
       gap: 22px;
+      align-items: start;
     }
+
+    .stack { display: flex; flex-direction: column; gap: 22px; }
 
     .panel {
+      position: relative;
       background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 12px 28px var(--shadow);
-      padding: 20px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
     }
 
-    .stack {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+    .sparkle {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0.9;
     }
 
     .section-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    .label-row {
-      display: flex;
-      justify-content: space-between;
+      display: inline-flex;
       align-items: center;
-      margin-bottom: 8px;
+      gap: 8px;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: 1.02rem;
+      margin: 0 0 16px;
     }
 
-    .mini-label {
-      font-size: 0.72rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 700;
+    .section-label .dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      border: 2px solid var(--border);
     }
+    .dot.yellow { background: var(--yellow); }
+    .dot.pink { background: var(--pink); }
+    .dot.blue { background: var(--blue); }
 
-    .helper {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
+    .helper { font-size: 0.78rem; color: var(--muted); }
 
     .field-grid {
       display: grid;
@@ -146,19 +251,14 @@
       gap: 12px;
     }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-
+    .field { display: flex; flex-direction: column; gap: 6px; }
     .field.full { grid-column: 1 / -1; }
 
     label {
       font-size: 0.72rem;
       color: var(--muted);
-      font-weight: 600;
-      letter-spacing: 0.04em;
+      font-weight: 700;
+      letter-spacing: 0.03em;
     }
 
     input[type="text"],
@@ -167,87 +267,71 @@
     textarea,
     select {
       width: 100%;
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
       background: var(--white);
-      color: var(--text);
-      border-radius: 10px;
-      padding: 11px 12px;
-      font-size: 0.92rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
     }
 
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
+    textarea { min-height: 120px; resize: vertical; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
 
-    input:focus,
-    textarea:focus,
-    select:focus {
+    input:focus, textarea:focus, select:focus {
       outline: none;
-      border-color: var(--black);
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+      box-shadow: var(--shadow-sm);
+      transform: translate(-1px, -1px);
     }
 
     input[type="file"] {
       width: 100%;
-      border: 1px dashed var(--border);
+      border: 2px dashed var(--border);
       background: var(--panel-soft);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 12px;
-      font-size: 0.9rem;
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
     }
 
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 6px;
-    }
+    .button-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 
     button {
       appearance: none;
-      border: 1px solid var(--black);
-      background: var(--black);
-      color: var(--white);
-      border-radius: 10px;
-      padding: 11px 16px;
-      font-weight: 600;
+      border: 2px solid var(--border);
+      background: var(--ink);
+      color: var(--cream);
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 700;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 0.88rem;
       cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
     }
 
-    button.secondary {
-      background: var(--white);
-      color: var(--black);
-    }
+    button.secondary { background: var(--white); color: var(--ink); }
+    button.accent { background: var(--yellow); color: var(--ink); }
 
-    button:hover { transform: translateY(-1px); }
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .log-box,
-    .meta-box,
-    .result-card,
-    .chunk-card {
-      background: var(--panel-soft);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-    }
+    button:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--border); }
+    button:active { transform: translate(0,0); box-shadow: 1px 1px 0 var(--border); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: var(--shadow-sm); }
 
     .log-box {
-      min-height: 42px;
-      font-size: 0.83rem;
+      margin-top: 14px;
+      min-height: 20px;
+      font-size: 0.8rem;
       color: var(--muted);
-      display: flex;
-      align-items: center;
+      background: var(--panel-soft);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 10px 13px;
     }
 
+    /* ---------- Metrics ---------- */
     .meta-box {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -255,167 +339,142 @@
     }
 
     .metric {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
+      background: var(--panel-soft);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 12px;
+      text-align: center;
     }
+    .metric:nth-child(1) { background: var(--blue-soft); }
+    .metric:nth-child(2) { background: var(--pink-soft); }
+    .metric:nth-child(3) { background: var(--yellow-soft); }
 
     .metric-label {
       display: block;
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 700;
       letter-spacing: 0.08em;
       color: var(--muted);
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
-    .metric-value {
-      font-size: 1.15rem;
-      font-weight: 700;
-      white-space: nowrap;
+    .metric-value { font-family: 'Fredoka', sans-serif; font-size: 1.25rem; font-weight: 600; white-space: nowrap; }
+
+    /* ---------- Ask panel (tilted accent behind it, signature move) ---------- */
+    .ask-wrap { position: relative; }
+
+    .ask-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 8px -8px -8px 8px;
+      background: var(--pink);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      transform: rotate(1.6deg);
+      z-index: 0;
     }
 
-    .result-card {
-      min-height: 170px;
-    }
+    .ask-panel { position: relative; z-index: 1; }
 
-    .progress-box {
-      margin-top: 14px;
-      background: var(--panel-soft);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-    }
-
+    /* ---------- Progress pills ---------- */
+    .progress-box { margin-top: 16px; }
     .progress-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 10px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
     }
-
-    .progress-steps {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+    .progress-steps { display: flex; flex-wrap: wrap; gap: 8px; }
 
     .step-pill {
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
       background: var(--white);
       color: var(--muted);
       border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 0.72rem;
-      font-weight: 600;
+      padding: 7px 13px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      font-family: 'Fredoka', sans-serif;
       transition: all 0.2s ease;
     }
 
     .step-pill.active {
-      background: var(--black);
-      color: var(--white);
-      border-color: var(--black);
+      background: var(--yellow);
+      color: var(--ink);
       animation: pulse 0.8s ease-in-out infinite alternate;
     }
 
-    .step-pill.done {
-      background: #171717;
-      color: var(--white);
-      border-color: #171717;
-    }
+    .step-pill.done { background: var(--ink); color: var(--cream); }
 
-    @keyframes pulse {
-      from { opacity: 0.75; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
-    }
+    @keyframes pulse { from { transform: scale(0.97); } to { transform: scale(1.03); } }
 
+    /* ---------- Answer ---------- */
     .answer-title {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+    }
+    .answer-text { font-size: 0.98rem; line-height: 1.7; white-space: pre-wrap; color: var(--ink); }
+    .empty { color: var(--muted); font-size: 0.88rem; }
+
+    .result-card {
+      min-height: 130px;
+      background: var(--panel-soft);
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
     }
 
-    .answer-text {
-      font-size: 0.98rem;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      color: var(--text);
-    }
-
-    .empty {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .chunk-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    /* ---------- Chunks ---------- */
+    .chunk-list { display: flex; flex-direction: column; gap: 12px; }
 
     .chunk-card {
-      padding: 14px;
+      background: var(--panel-soft);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
     }
+    .chunk-card:nth-child(3n+1) { background: var(--blue-soft); }
+    .chunk-card:nth-child(3n+2) { background: var(--pink-soft); }
+    .chunk-card:nth-child(3n+3) { background: var(--yellow-soft); }
 
     .chunk-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 10px;
-      font-size: 0.75rem;
-      color: var(--muted);
+      display: flex; justify-content: space-between; gap: 12px; align-items: center;
+      margin-bottom: 10px; font-size: 0.74rem; color: var(--muted); font-weight: 600;
     }
 
     .score-pill {
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
       background: var(--white);
-      padding: 4px 7px;
+      padding: 3px 9px;
       border-radius: 999px;
-      font-weight: 600;
-      color: var(--text);
+      font-weight: 700;
+      color: var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
     }
 
     .score-bar {
-      height: 6px;
-      background: #e3e3e0;
-      border-radius: 999px;
-      overflow: hidden;
-      margin-bottom: 10px;
+      height: 7px; background: rgba(23,22,15,0.12);
+      border: 1.5px solid var(--border);
+      border-radius: 999px; overflow: hidden; margin-bottom: 10px;
     }
+    .score-bar span { display: block; height: 100%; background: var(--ink); }
 
-    .score-bar span {
-      display: block;
-      height: 100%;
-      background: var(--black);
-      border-radius: inherit;
+    .chunk-text { font-size: 0.9rem; line-height: 1.65; color: var(--ink); white-space: pre-wrap; font-family: 'JetBrains Mono', monospace; }
+
+    /* ---------- Loader (sparkle spin) ---------- */
+    .loader { display: none; width: 56px; height: 56px; margin: 18px auto; position: relative; }
+    .loader.active { display: block; }
+    .loader svg { width: 100%; height: 100%; animation: spin 1.1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 940px) {
+      .layout { grid-template-columns: 1fr; }
+      .ask-wrap::before { display: none; }
     }
-
-    .chunk-text {
-      font-size: 0.92rem;
-      line-height: 1.7;
-      color: var(--text);
-      white-space: pre-wrap;
-    }
-
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
     @media (max-width: 560px) {
-      .field-grid,
-      .meta-box {
-        grid-template-columns: 1fr;
-      }
+      .field-grid, .meta-box { grid-template-columns: 1fr; }
+      .topbar { flex-wrap: wrap; border-radius: 26px; }
     }
   </style>
 </head>
@@ -423,19 +482,34 @@
   <div class="wrap">
     <header class="topbar">
       <div class="brand">
-        <div class="brand-mark">R</div>
-        <span>RAG Lab</span>
+        <div class="brand-mark">✦</div>
+        <span class="brand-name">RAG Lab</span>
+        <span class="brand-tag">Playground</span>
       </div>
-      <div id="status" class="status">
-        <span class="status-dot"></span>
-        <span>checking backend…</span>
+      <div class="topbar-right">
+        <div id="status" class="status">
+          <span class="status-dot"></span>
+          <span>checking backend…</span>
+        </div>
+        <button id="themeToggle" class="theme-toggle" title="Toggle theme" aria-label="Toggle dark/light theme">
+          <svg id="moonIcon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg id="sunIcon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
       </div>
     </header>
+
+    <div class="hero-row">
+      <div>
+        <div class="eyebrow">✦ retrieval-augmented playground</div>
+        <h1 class="page-title">Ask your <span class="mark">documents</span> anything</h1>
+        <p class="page-sub">Upload a source, tune the pipeline, and see exactly what got retrieved before the model answers.</p>
+      </div>
+    </div>
 
     <div class="layout">
       <aside class="stack">
         <section class="panel">
-          <div class="section-label">Settings</div>
+          <div class="section-label"><span class="dot yellow"></span>Settings</div>
 
           <div class="field-grid">
             <div class="field full">
@@ -470,51 +544,56 @@
           </div>
 
           <div class="button-row">
-            <button id="saveConfigBtn" class="secondary" type="button">Save config</button>
-            <button id="loadConfigBtn" type="button">Load defaults</button>
+            <button id="saveConfigBtn" class="accent" type="button">Save config</button>
+            <button id="loadConfigBtn" class="secondary" type="button">Load defaults</button>
           </div>
 
-          <div id="configLog" class="log-box" style="margin-top: 12px;">No settings saved yet.</div>
+          <div id="configLog" class="log-box">No settings saved yet.</div>
         </section>
 
         <section class="panel">
-          <div class="section-label">Knowledge Base</div>
+          <div class="section-label"><span class="dot blue"></span>Knowledge base</div>
           <div class="field full">
             <label for="fileInput">Upload file</label>
             <input type="file" id="fileInput" accept=".pdf,.txt,.md" />
           </div>
 
           <div class="button-row">
-            <button id="uploadBtn" type="button">Ingest file</button>
+            <button id="uploadBtn" class="accent" type="button">Ingest file</button>
           </div>
 
-          <div id="ingestLog" class="log-box" style="margin-top: 12px;">No file ingested yet.</div>
+          <div id="ingestLog" class="log-box">No file ingested yet.</div>
         </section>
       </aside>
 
       <main class="stack">
-        <section class="panel">
-          <div class="section-label">Ask a question</div>
-          <textarea id="questionInput" placeholder="Paste your question here..."></textarea>
-          <div class="button-row" style="margin-top: 14px;">
-            <button id="askBtn" type="button">Run RAG</button>
-          </div>
-          <div class="progress-box">
-            <div class="progress-label">RAG pipeline</div>
-            <div id="ragProgress" class="progress-steps">
-              <span class="step-pill">Query</span>
-              <span class="step-pill">Embedding</span>
-              <span class="step-pill">Retrieval</span>
-              <span class="step-pill">LLM</span>
-              <span class="step-pill">Answer</span>
+        <div class="ask-wrap">
+          <section class="panel ask-panel">
+            <div class="section-label"><span class="dot pink"></span>Ask a question</div>
+            <textarea id="questionInput" placeholder="Paste your question here..."></textarea>
+            <div class="button-row">
+              <button id="askBtn" type="button">Run RAG ✦</button>
             </div>
-          </div>
-        </section>
+            <div id="processingLoader" class="loader">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2z"/>
+              </svg>
+            </div>
+            <div class="progress-box">
+              <div class="progress-label">RAG pipeline</div>
+              <div id="ragProgress" class="progress-steps">
+                <span class="step-pill">Query</span>
+                <span class="step-pill">Embedding</span>
+                <span class="step-pill">Retrieval</span>
+                <span class="step-pill">LLM</span>
+                <span class="step-pill">Answer</span>
+              </div>
+            </div>
+          </section>
+        </div>
 
         <section class="panel">
-          <div class="label-row">
-            <div class="section-label" style="margin: 0;">Performance</div>
-          </div>
+          <div class="section-label"><span class="dot yellow"></span>Performance</div>
           <div class="meta-box">
             <div class="metric">
               <span class="metric-label">Retrieval</span>
@@ -532,14 +611,14 @@
         </section>
 
         <section class="panel">
-          <div class="section-label">Answer</div>
+          <div class="section-label"><span class="dot blue"></span>Answer</div>
           <div id="answerBox" class="result-card">
             <div class="empty">No result yet.</div>
           </div>
         </section>
 
         <section class="panel">
-          <div class="section-label">Retrieved context</div>
+          <div class="section-label"><span class="dot pink"></span>Retrieved context</div>
           <div id="chunksBox" class="chunk-list">
             <div class="empty">Retrieved chunks will appear here.</div>
           </div>
@@ -551,6 +630,40 @@
   <script>
     const API_BASE = "https://general-purpose-rag-1.onrender.com"; // change for local use http://localhost:8000
     const SESSION_KEY = "raglab_session_config";
+    const THEME_KEY = "raglab_theme";
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+      const isDark = savedTheme === 'dark';
+      if (isDark) {
+        document.documentElement.classList.add('dark-mode');
+        document.getElementById('moonIcon').style.display = 'none';
+        document.getElementById('sunIcon').style.display = 'block';
+      } else {
+        document.documentElement.classList.remove('dark-mode');
+        document.getElementById('moonIcon').style.display = 'block';
+        document.getElementById('sunIcon').style.display = 'none';
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark-mode');
+      const theme = isDark ? 'dark' : 'light';
+      localStorage.setItem(THEME_KEY, theme);
+      if (isDark) {
+        document.getElementById('moonIcon').style.display = 'none';
+        document.getElementById('sunIcon').style.display = 'block';
+      } else {
+        document.getElementById('moonIcon').style.display = 'block';
+        document.getElementById('sunIcon').style.display = 'none';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    });
+
     const defaultConfig = {
       llmBaseUrl: "https://openrouter.ai/api/v1",
       llmModel: "openai/gpt-oss-20b:free",
@@ -754,6 +867,7 @@
       answerBox.innerHTML = '<div class="empty">Processing RAG pipeline…</div>';
       chunksBox.innerHTML = '<div class="empty">Running query pipeline…</div>';
       resetProgress();
+      document.getElementById("processingLoader").classList.add("active");
 
       try {
         updateProgress(0);
@@ -783,10 +897,12 @@
 
         await wait(350);
         updateProgress(4);
+        document.getElementById("processingLoader").classList.remove("active");
         answerBox.innerHTML = `<div class="answer-title">Answer</div><div class="answer-text">${escapeHtml(data.answer || "No answer returned.")}</div>`;
         renderChunks(data.retrieved_chunks || []);
       } catch (err) {
         resetProgress();
+        document.getElementById("processingLoader").classList.remove("active");
         document.getElementById("retrievalTime").textContent = '—';
         document.getElementById("llmTime").textContent = '—';
         document.getElementById("totalTime").textContent = '—';
